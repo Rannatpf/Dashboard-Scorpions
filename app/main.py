@@ -6,36 +6,53 @@ import os
 # 1. Configuração da Página
 st.set_page_config(page_title="Scorpions Connect - Data Analytics", layout="wide", page_icon="🦂")
 
-# 2. Caminhos de Arquivos
-base_path = os.path.dirname(__file__)
-csv_path = os.path.join(base_path, '..', 'data', 'scorpions_analise_cruzada.csv')
+# 2. Lógica de Caminho Robusta (Resolve o erro de "No such file or directory")
+def encontrar_csv():
+    diretorio_atual = os.path.dirname(os.path.abspath(__file__))
+    # Lista de locais possíveis para o arquivo
+    tentativas = [
+        os.path.join(diretorio_atual, '..', 'data', 'scorpions_analise_cruzada.csv'), # Local (app/../data)
+        os.path.join(diretorio_atual, 'data', 'scorpions_analise_cruzada.csv'),      # Nuvem (data/)
+        'data/scorpions_analise_cruzada.csv'                                         # Root relativo
+    ]
+    for caminho in tentativas:
+        if os.path.exists(caminho):
+            return caminho
+    return None
+
+csv_path = encontrar_csv()
 
 @st.cache_data 
-def carregar_dados():
-    # Carrega o CSV
-    df = pd.read_csv(csv_path)
+def carregar_dados(caminho):
+    if not caminho:
+        return None
+    
+    df = pd.read_csv(caminho)
     
     # Validação da coluna 'canal'
     if 'canal' not in df.columns:
         df['canal'] = "Não Informado" 
 
-    # Conversão de tipos de dados
+    # Conversão de tipos de dados (Garante que cálculos funcionem)
     df['total_acessos'] = pd.to_numeric(df['total_acessos'], errors='coerce').fillna(0)
     df['valor_mensal'] = pd.to_numeric(df['valor_mensal'], errors='coerce').fillna(0)
     
-    # Criação da coluna Persona (Lógica de Negócio)
+    # Criação da coluna Persona (Lógica de Negócio do Projeto)
     if 'persona' not in df.columns:
         df['persona'] = df['nicho'].apply(
             lambda x: 'Persona Mãe' if str(x).lower() in ['farmacia', 'proteção veicular', 'rh', 'academia'] 
             else 'Persona Negativa'
         )
-        
     return df
 
 # 3. Execução do Dashboard
 try:
-    # Chamada da função para carregar os dados
-    df = carregar_dados()
+    df = carregar_dados(csv_path)
+
+    if df is None:
+        st.error("🚨 Erro Crítico: O arquivo 'scorpions_analise_cruzada.csv' não foi encontrado.")
+        st.info("Verifique se a pasta 'data' foi enviada corretamente para o GitHub.")
+        st.stop()
 
     # --- SIDEBAR (FILTROS) ---
     st.sidebar.image("https://scorpionsconnect.com.br/wp-content/uploads/2021/10/logo-scorpions-connect.png", width=200)
@@ -45,7 +62,6 @@ try:
     status = st.sidebar.multiselect("Filtrar por Status:", options=df['status'].unique(), default=df['status'].unique())
     canais = st.sidebar.multiselect("Filtrar por Canal:", options=df['canal'].unique(), default=df['canal'].unique())
     
-    # Aplicação dos Filtros
     df_filtrado = df[
         (df['estado'].isin(estados)) & 
         (df['status'].isin(status)) & 
@@ -54,7 +70,7 @@ try:
 
     # --- CABEÇALHO ---
     st.title("🦂 Scorpions Connect: Inteligência de Dados")
-    st.markdown(f"Análise de **{len(df_filtrado)}** clientes cadastrados na base.")
+    st.markdown(f"Análise de **{len(df_filtrado)}** clientes ativos e inativos.")
 
     # --- LINHA 1: KPIs ---
     mrr_ativo = df_filtrado[df_filtrado['status'] == 'ativo']['valor_mensal'].sum()
@@ -99,15 +115,12 @@ try:
 
     with tab3:
         st.subheader("Expansão Geográfica da Scorpions")
-        # Agrupamento para o gráfico geográfico
         df_geo_count = df_filtrado.groupby('estado').size().reset_index(name='qtd')
         fig_geo = px.bar(df_geo_count, x='estado', y='qtd', color='estado', text_auto=True, title="Nacionalização da Base")
         st.plotly_chart(fig_geo, use_container_width=True)
 
     with tab4:
         st.header("🧠 Centro de Insights")
-        
-        # Lógica de Risco: Clientes ativos com menos de 3.000 acessos
         risco = df_filtrado[(df_filtrado['status'] == 'ativo') & (df_filtrado['total_acessos'] < 3000)]
         
         col_in1, col_in2 = st.columns(2)
@@ -123,5 +136,4 @@ try:
         st.dataframe(risco[['cliente', 'nicho', 'total_acessos', 'valor_mensal', 'canal']].sort_values(by='total_acessos'), use_container_width=True)
 
 except Exception as e:
-    st.error(f"Erro ao carregar o Dashboard: {e}")
-    st.info("Certifique-se de que o arquivo 'scorpions_analise_cruzada.csv' está na pasta '/data'.")
+    st.error(f"Erro inesperado: {e}")
