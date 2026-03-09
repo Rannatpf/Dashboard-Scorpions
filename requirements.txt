@@ -2,3 +2,4 @@ streamlit
 pandas
 plotly
 nbformat
+st-gsheets-connection

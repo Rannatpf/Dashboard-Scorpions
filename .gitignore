@@ -1,8 +1,4 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
 venv/
-.env
-.pytest_cache/
-.streamlit/
+.streamlit/secrets.toml
+__pycache__/
+*.csv
