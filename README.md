@@ -1,5 +1,94 @@
 # Scorpions Connect - Dashboard de Churn
 
+ Scorpions Connect: Dashboard de Inteligência e Retenção
+
+## 📌 Visão Geral
+
+Este projeto foi desenvolvido como uma solução estratégica de **Business Intelligence (BI)** para a Scorpions Connect. O objetivo principal é monitorar o engajamento de clientes e prever o risco de cancelamento (*Churn*) através de uma análise dinâmica de dados.
+
+A plataforma integra dados de faturamento (MRR) e volumetria de mensagens em um pipeline automatizado, utilizando técnicas de **normalização estatística** para garantir uma análise justa entre clientes veteranos e novos.
+
+---
+
+## 🛠️ Stack Tecnológica
+
+* **Linguagem:** Python 3.9+
+* **Interface:** Streamlit (Ambiente Cloud)
+* **Manipulação de Dados:** Pandas & Numpy
+* **Visualização:** Plotly Express (Gráficos Interativos)
+* **Base de Dados:** Google Sheets API (st-gsheets-connection)
+* **Segurança:** TOML Secrets Management (Compliance com LGPD)
+
+---
+
+## 🚀 Funcionalidades Chave
+
+* **Pipeline Automatizado (ETL):** Extração, transformação e carga de dados em tempo real via API.
+* **Análise de Série Temporal:** Monitoramento de engajamento cobrindo o biênio 2025-2026.
+* **Normalização por Tempo de Exposição:** Cálculo de média mensal ponderada para evitar viés em clientes de *onboarding*.
+* **Centro de Gestão de Risco:** Filtro proativo de contas com baixo *Health Score* para intervenção imediata do suporte.
+* **Segmentação por Persona:** Identificação automática de perfis ideais (Persona Mãe) vs perfis de alto risco.
+
+---
+
+## 🏗️ Arquitetura de Dados
+
+O projeto utiliza uma estrutura de **Cloud Secrets**, onde as credenciais da API e a URL da base de dados são injetadas em tempo de execução, impedindo a exposição de dados sensíveis no histórico do Git.
+
+---
+
+## 📂 Estrutura do Repositório
+
+**Bash**
+
+```
+├── app/
+│   └── main.py          # Código principal da aplicação Streamlit
+├── requirements.txt     # Dependências do projeto (Venv)
+├── .streamlit/
+│   └── secrets.toml     # Configurações de segurança (Local)
+└── README.md            # Documentação do projeto
+```
+
+---
+
+## 📊 Como Executar o Projeto Localmente
+
+1. **Clone o repositório:**
+   **Bash**
+
+   ```
+   git clone https://github.com/Rannatpf/Dashboard-Scorpions.git
+   cd Dashboard-Scorpions
+   ```
+2. **Crie e ative um ambiente virtual (Venv):**
+   **Bash**
+
+   ```
+   python -m venv venv
+   source venv/bin/activate  # No Linux/Mac
+   .\venv\Scripts\activate   # No Windows
+   ```
+3. **Instale as dependências:**
+   **Bash**
+
+   ```
+   pip install -r requirements.txt
+   ```
+4. **Configure os Secrets:** Crie um arquivo `.streamlit/secrets.toml` e adicione a URL da sua planilha:
+   **Ini, TOML**
+
+   ```
+   [connections.gsheets]
+   spreadsheet = "SUA_URL_DO_GOOGLE_SHEETS"
+   ```
+5. **Execute o App:**
+   **Bash**
+
+   ```
+   streamlit run app/main.py
+   ```
+
 Aqui está um modelo de **README.md** profissional e estratégico. Ele foi escrito para destacar suas competências como desenvolvedora e sua capacidade de entrega consultiva para a **Scorpions Connect**, servindo tanto para o seu portfólio no GitHub quanto como evidência para o seu **Relatório de Extensão V**.
 
 ---
