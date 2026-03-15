@@ -1,5 +1,4 @@
-streamlit
-pandas
+streamlit==1.37.1
+pandas==2.2.2
 plotly
-nbformat
-st-gsheets-connection
+st-gsheets-connection==0.1.0

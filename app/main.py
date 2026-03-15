@@ -19,7 +19,7 @@ def carregar_dados():
         if 'canal' not in df.columns:
             df['canal'] = "Não Informado" 
 
-        df['total_acessos'] = pd.to_numeric(df['total_acessos'], errors='coerce').fillna(0)
+        df['total_mensagens'] = pd.to_numeric(df['total_mensagens'], errors='coerce').fillna(0)
         df['valor_mensal'] = pd.to_numeric(df['valor_mensal'], errors='coerce').fillna(0)
         
         if 'persona' not in df.columns:
@@ -28,7 +28,7 @@ def carregar_dados():
                 else 'Persona Negativa'
             )
             
-        df['status_risco'] = df['total_acessos'].apply(
+        df['status_risco'] = df['total_mensagens'].apply(
             lambda x: 'Crítico' if x < 3000 else ('Atenção' if x < 5000 else 'Saudável')
         )
         
@@ -57,7 +57,7 @@ if df is not None:
     st.markdown(f"Análise de engajamento e retenção de **{len(df_filtrado)}** clientes cadastrados.")
 
     mrr_ativo = df_filtrado[df_filtrado['status'] == 'ativo']['valor_mensal'].sum()
-    acessos_totais = df_filtrado['total_acessos'].sum()
+    acessos_totais = df_filtrado['total_mensagens'].sum()
     churn_total = len(df_filtrado[df_filtrado['status'] == 'cancelado'])
     
     col1, col2, col3, col4 = st.columns(4)
@@ -74,18 +74,18 @@ if df is not None:
         st.subheader("Comportamento por Persona e Nicho")
         c1, c2 = st.columns(2)
         with c1:
-            fig_persona = px.bar(df_filtrado, x='persona', y='total_acessos', color='status', 
+            fig_persona = px.bar(df_filtrado, x='persona', y='total_mensagens', color='status', 
                                  barmode='group', template="plotly_dark")
             st.plotly_chart(fig_persona, use_container_width=True)
         with c2:
-            fig_nicho = px.box(df_filtrado, x='nicho', y='total_acessos', color='status')
+            fig_nicho = px.box(df_filtrado, x='nicho', y='total_mensagens', color='status')
             st.plotly_chart(fig_nicho, use_container_width=True)
 
     with tab2:
         st.subheader("Análise de Eficiência Comercial")
         c3, c4 = st.columns(2)
         with c3:
-            fig_disp = px.scatter(df_filtrado, x='total_acessos', y='valor_mensal', color='status',
+            fig_disp = px.scatter(df_filtrado, x='total_mensagens', y='valor_mensal', color='status',
                                   size='valor_mensal', hover_name='cliente')
             st.plotly_chart(fig_disp, use_container_width=True)
         with c4:
@@ -100,7 +100,7 @@ if df is not None:
 
     with tab4:
         st.header("🧠 Centro de Monitoramento Pró-Ativo")
-        risco = df_filtrado[(df_filtrado['status'] == 'ativo') & (df_filtrado['total_acessos'] < 3000)]
+        risco = df_filtrado[(df_filtrado['status'] == 'ativo') & (df_filtrado['total_mensagens'] < 3000)]
         
         col_in1, col_in2 = st.columns(2)
         with col_in1:
@@ -110,7 +110,7 @@ if df is not None:
 
         st.divider()
         st.subheader("🚨 Tabela de Ação para Suporte")
-        st.dataframe(risco[['cliente', 'nicho', 'total_acessos', 'valor_mensal', 'canal']].sort_values(by='total_acessos'), use_container_width=True)
+        st.dataframe(risco[['cliente', 'nicho', 'total_mensagens', 'valor_mensal', 'canal']].sort_values(by='total_mensagens'), use_container_width=True)
 
 else:
     st.warning("Verifique a configuração nos Secrets do Streamlit.")
